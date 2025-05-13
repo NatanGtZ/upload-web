@@ -6,6 +6,8 @@ on:
       - main
 env:
   SOURCE_DIST: './dist'
+  AWS_S3_BUCKET_STATIC: 'pos-upload-widget-web-static'
+  AWS_S3_BUCKET_CDN: 'pos-upload-widget-web-cdn'
 
 jobs:
   deploy:
@@ -42,8 +44,9 @@ jobs:
       - name: Sync to S3
         id: sync-to-s3
         run: |
-          aws s3 sync ./dist s3://${{ secrets.AWS_S3_BUCKET }} --delete --exclude '.*git*'
-        env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          SOURCE_DIR: './dist'
+          aws s3 sync ${{ env.SOURCE_DIST }} s3://${{ env.AWS_S3_BUCKET_STATIC }} --delete --exclude '.*git*'
+
+      - name: Sync to S3 cdn
+        id: sync-to-s3-cdn
+        run: |
+          aws s3 sync ${{ env.SOURCE_DIST }} s3://${{ env.AWS_S3_BUCKET_CDN }} --delete --exclude '.*git*'
